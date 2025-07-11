@@ -10,10 +10,15 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",
+    "firebase": "^11.10.0",
+    "framer-motion": "^12.23.3",
     "next": "15.3.5",
     "postcss": "^8.5.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-firebase-hooks": "^5.1.1",
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
