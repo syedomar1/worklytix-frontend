@@ -111,7 +111,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
-              style={{ borderColor: '#0071ce', fontFamily: 'Arial' }}
+              style={{ borderColor: '#0071ce', fontFamily: 'Arial', color: '#000000', backgroundColor: '#ffffff'}}
             />
           </div>
           <div className="relative">
@@ -122,7 +122,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
-              style={{ borderColor: '#0071ce', fontFamily: 'Arial' }}
+              style={{ borderColor: '#0071ce', fontFamily: 'Arial', color: '#000000', backgroundColor: '#ffffff' }}
             />
             <button
               type="button"

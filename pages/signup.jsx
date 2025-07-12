@@ -96,7 +96,7 @@ export default function SignUp() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
-              style={{ borderColor: '#0071ce', fontFamily: 'Arial' }}
+              style={{ borderColor: '#0071ce', fontFamily: 'Arial', color: '#000000', backgroundColor: '#ffffff' }}
             />
           </div>
           <div>
@@ -107,7 +107,7 @@ export default function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
-              style={{ borderColor: '#0071ce', fontFamily: 'Arial' }}
+              style={{ borderColor: '#0071ce', fontFamily: 'Arial', color: '#000000', backgroundColor: '#ffffff' }}
             />
           </div>
           <div>
@@ -118,7 +118,7 @@ export default function SignUp() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
-              style={{ borderColor: '#0071ce', fontFamily: 'Arial' }}
+              style={{ borderColor: '#0071ce', fontFamily: 'Arial', color: '#000000', backgroundColor: '#ffffff' }}
             />
           </div>
 
