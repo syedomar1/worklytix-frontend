@@ -1,5 +1,7 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaWarehouse, FaTruckLoading, FaStore, FaUserTie } from 'react-icons/fa';
 
@@ -7,7 +9,10 @@ export default function Hero() {
   const router = useRouter();
 
   const handleRoleClick = (role) => {
-    router.push(`/login?role=${encodeURIComponent(role)}`);
+    // ✅ Save role in sessionStorage
+    sessionStorage.setItem('role', role);
+    // ✅ Redirect to insights page
+    router.push('/insights');
   };
 
   return (
@@ -33,7 +38,7 @@ export default function Hero() {
         transition={{ delay: 0.2, duration: 0.6 }}
         className="text-lg text-center max-w-2xl mb-16 text-gray-600 z-10"
       >
-        Empowering every layer of Walmart's operations with AI-driven insights.
+        Empowering every layer of Walmart&apos;s operations with AI-driven insights.
       </motion.p>
 
       {/* Role Cards */}

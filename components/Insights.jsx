@@ -1,32 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth, db } from "@/firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import ChatInterface from "@/components/ChatInterface";
 import Navbar from "@/components/Navbar";
 import { FileDown } from "lucide-react";
 
-export default function InsightsPage() {
+export default function Insights() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setRole(docSnap.data().role);
-        }
-      }
-      setLoading(false);
-    });
+  const storedRole = sessionStorage.getItem("role");
+  console.log("Session role:", storedRole);
 
-    return () => unsubscribe();
-  }, []);
+  const validRoles = [
+    "Warehouse Ops Manager",
+    "Store Manager",
+    "Executive",
+    "Supply Chain Manager",
+  ];
+
+  if (storedRole && validRoles.includes(storedRole)) {
+    setRole(storedRole);
+    setLoading(false); // ✅ only after role is valid
+  } else {
+    sessionStorage.clear();
+    router.replace("/login"); // ✅ use replace to avoid back navigation
+  }
+}, []);
 
   const downloadReport = async (type) => {
     try {
@@ -89,31 +93,19 @@ export default function InsightsPage() {
     switch (role) {
       case "Warehouse Ops Manager":
         return (
-          <ChatInterface
-            defaultEndpoint={`${backend}/query/warehouse`}
-            role="Warehouse Ops Manager"
-          />
+          <ChatInterface defaultEndpoint={`${backend}/query/warehouse`} role={role} />
         );
       case "Store Manager":
         return (
-          <ChatInterface
-            defaultEndpoint={`${backend}/query/store`}
-            role="Store Manager"
-          />
+          <ChatInterface defaultEndpoint={`${backend}/query/store`} role={role} />
         );
       case "Executive":
         return (
-          <ChatInterface
-            defaultEndpoint={`${backend}/query/executive`}
-            role="Executive"
-          />
+          <ChatInterface defaultEndpoint={`${backend}/query/executive`} role={role} />
         );
       case "Supply Chain Manager":
         return (
-          <ChatInterface
-            defaultEndpoint={`${backend}/query/warehouse`}
-            role="Supply Chain Manager"
-          />
+          <ChatInterface defaultEndpoint={`${backend}/query/warehouse`} role={role} />
         );
       default:
         return (
@@ -139,7 +131,6 @@ export default function InsightsPage() {
     <>
       <Navbar />
       <div className="pt-24 px-6 md:px-12">
-        {/* Report Download Buttons */}
         <div className="mb-6 text-center">{renderDownloadButtons()}</div>
         {renderChatBasedOnRole()}
       </div>
