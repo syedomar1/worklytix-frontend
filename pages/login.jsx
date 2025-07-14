@@ -13,7 +13,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Navbar from '../components/Navbar'; // ✅ Make sure this path is correct
+import Navbar from '../components/Navbar';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -56,11 +56,16 @@ export default function Login() {
       }
 
       const userData = userDoc.data();
-      if (!verifyRoleAndRedirect(userData.role)) return;
 
+      // ✅ Always store credentials for debugging
       sessionStorage.setItem('email', email);
       sessionStorage.setItem('role', userData.role);
       localStorage.setItem('isLoggedIn', 'true');
+
+      console.log('Saved role:', userData.role);
+      console.log('sessionStorage role:', sessionStorage.getItem('role'));
+
+      if (!verifyRoleAndRedirect(userData.role)) return;
 
       handleToast('success', `Welcome ${userData.role}!`);
       setTimeout(() => router.push('/'), 1500);
@@ -85,20 +90,23 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const docRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(docRef);
-
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (!userDoc.exists()) {
         handleToast('error', 'No account found. Please sign up first.');
         return;
       }
 
       const userData = userDoc.data();
-      if (!verifyRoleAndRedirect(userData.role)) return;
 
+      // ✅ Always store credentials
       sessionStorage.setItem('email', user.email);
       sessionStorage.setItem('role', userData.role);
       localStorage.setItem('isLoggedIn', 'true');
+
+      console.log('Saved role:', userData.role);
+      console.log('sessionStorage role:', sessionStorage.getItem('role'));
+
+      if (!verifyRoleAndRedirect(userData.role)) return;
 
       handleToast('success', `Logged in as ${userData.role}`);
       setTimeout(() => router.push('/'), 1500);

@@ -101,9 +101,9 @@ export default function Navbar() {
           <button onClick={() => handleScroll("hero")} className="hover:text-[#0071ce] transition">
             Home
           </button>
-          <button onClick={() => handleScroll("services")} className="hover:text-[#0071ce] transition">
-            Services
-          </button>
+          <Link href="/insights">
+  <button className="hover:text-[#0071ce] transition">Insights</button>
+</Link>
           {userRole === "admin" && (
             <Link href="/dashboard">
               <button className="hover:text-[#0071ce] transition">Dashboard</button>

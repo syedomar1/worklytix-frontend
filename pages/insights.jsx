@@ -1,7 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Insights from "@/components/Insights";
+import withAuthentication from "@/firebase/withAuthenticator";
 
-export default function InsightsPage() {
+function InsightsPage() {
   return (
     <>
       <Navbar />
@@ -9,3 +10,5 @@ export default function InsightsPage() {
     </>
   );
 }
+
+export default InsightsPage;
