@@ -1,119 +1,148 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
-import { SendHorizonal } from "lucide-react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { auth, db } from "@/firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import ChatInterface from "@/components/ChatInterface";
+import Navbar from "@/components/Navbar";
+import { FileDown } from "lucide-react";
 
-const placeholderImages = [
-  "/insights/chart1.jpg",
-  "/insights/chart2.jpg",
-  "/insights/chart3.jpg",
-  "/insights/chart4.jpg",
-];
-
-export default function Insights() {
-  const [input, setInput] = useState("");
-  const [chat, setChat] = useState([]);
-  const chatRef = useRef(null);
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    const userMessage = { sender: "user", text: input };
-    const botResponse = {
-      sender: "bot",
-      text: `📊 Placeholder insight based on: "${input}"`,
-    };
-
-    setChat((prev) => [...prev, userMessage, botResponse]);
-    setInput("");
-  };
+export default function InsightsPage() {
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setRole(docSnap.data().role);
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const downloadReport = async (type) => {
+    try {
+      const res = await fetch(`${backend}/report/${type}`);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${type}_report.pdf`;
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert("❌ Failed to download report.");
+      console.error(error);
     }
-  }, [chat]);
+  };
 
-  return (
-    <div className="min-h-screen pt-20 bg-[#f5faff] text-[#1a1a1a] font-sans px-4 md:px-8">
-      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-5rem)]">
-        {/* Chat Section */}
-        <div className="lg:w-[30%] w-full bg-white rounded-2xl shadow-lg flex flex-col p-5">
-          <h2 className="text-xl font-bold mb-4 text-[#0071ce] text-center">💬 Ask Assistant</h2>
+  const renderDownloadButtons = () => {
+    const buttonClass =
+      "flex items-center gap-2 text-sm font-medium bg-[#0071ce] text-white px-3 py-2 rounded-md hover:bg-[#005bb5] transition";
 
-          <div
-            ref={chatRef}
-            className="flex-1 overflow-y-auto space-y-3 border border-gray-200 rounded-md bg-[#f9f9f9] p-3"
-          >
-            {chat.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center mt-6">
-                Start asking about any insight on the right ➡️
-              </p>
-            ) : (
-              chat.map((msg, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className={`px-4 py-2 rounded-lg text-sm max-w-[90%] ${
-                    msg.sender === "user"
-                      ? "bg-[#d6eaff] self-end ml-auto"
-                      : "bg-[#ececec] self-start mr-auto"
-                  }`}
-                >
-                  {msg.text}
-                </motion.div>
-              ))
-            )}
-          </div>
-
-          <div className="mt-3 flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Ask something..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none text-sm"
-            />
-            <button
-              onClick={handleSend}
-              className="p-3 bg-[#0071ce] hover:bg-[#005bb5] text-white rounded-full transition"
-              aria-label="Send"
-            >
-              <SendHorizonal size={18} />
+    switch (role) {
+      case "Warehouse Ops Manager":
+        return (
+          <button onClick={() => downloadReport("warehouse")} className={buttonClass}>
+            <FileDown size={16} /> Download Warehouse Report
+          </button>
+        );
+      case "Store Manager":
+        return (
+          <button onClick={() => downloadReport("store")} className={buttonClass}>
+            <FileDown size={16} /> Download Store Report
+          </button>
+        );
+      case "Executive":
+        return (
+          <button onClick={() => downloadReport("executive")} className={buttonClass}>
+            <FileDown size={16} /> Download Executive Report
+          </button>
+        );
+      case "Supply Chain Manager":
+        return (
+          <div className="flex gap-3 flex-wrap">
+            <button onClick={() => downloadReport("warehouse")} className={buttonClass}>
+              <FileDown size={16} /> Warehouse Report
+            </button>
+            <button onClick={() => downloadReport("store")} className={buttonClass}>
+              <FileDown size={16} /> Store Report
             </button>
           </div>
-        </div>
+        );
+      default:
+        return null;
+    }
+  };
 
-        {/* Insights Section */}
-        <div className="lg:w-[70%] w-full grid grid-cols-1 sm:grid-cols-2 gap-5 overflow-y-auto pr-2">
-          {placeholderImages.map((src, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center justify-center"
-            >
-              <div className="w-full h-auto aspect-video relative rounded-lg overflow-hidden">
-                <Image
-                  src={src}
-                  alt={`Insight ${index + 1}`}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <p className="mt-3 text-sm text-gray-600 text-center">
-                Insight Chart {index + 1}
-              </p>
-            </motion.div>
-          ))}
+  const renderChatBasedOnRole = () => {
+    switch (role) {
+      case "Warehouse Ops Manager":
+        return (
+          <ChatInterface
+            defaultEndpoint={`${backend}/query/warehouse`}
+            role="Warehouse Ops Manager"
+          />
+        );
+      case "Store Manager":
+        return (
+          <ChatInterface
+            defaultEndpoint={`${backend}/query/store`}
+            role="Store Manager"
+          />
+        );
+      case "Executive":
+        return (
+          <ChatInterface
+            defaultEndpoint={`${backend}/query/executive`}
+            role="Executive"
+          />
+        );
+      case "Supply Chain Manager":
+        return (
+          <ChatInterface
+            defaultEndpoint={`${backend}/query/warehouse`}
+            role="Supply Chain Manager"
+          />
+        );
+      default:
+        return (
+          <div className="text-center mt-20 text-gray-600">
+            Role not recognized. Please contact admin.
+          </div>
+        );
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="pt-32 text-center text-gray-500 text-lg">
+          Loading Insights...
         </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
+      <div className="pt-24 px-6 md:px-12">
+        {/* Report Download Buttons */}
+        <div className="mb-6 text-center">{renderDownloadButtons()}</div>
+        {renderChatBasedOnRole()}
       </div>
-    </div>
+    </>
   );
 }
